@@ -13,83 +13,34 @@ namespace Shell_Sort
     public partial class MainForm : Form
     {
         VisualiseSort sort;
-        int delay = 50;
-        int[] mas;
+        int masN = 150;
+        int delay = 3;
 
         public MainForm()
         {
             InitializeComponent();
-            sort = new VisualiseSort(PictureBox);
-            mas = sort.mas;
+            this.FormBorderStyle = FormBorderStyle.FixedSingle;
+            sort = new VisualiseSort(PictureBox, PictureBox.Width, delay);
             sort.DrawMas();
             PictureBox.Image = sort.bmp;
-
         }
 
         private void startToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            this.FormBorderStyle = FormBorderStyle.FixedSingle;
-            this.Enabled = false;
-
-            Thread sorting = new Thread(new ThreadStart(StartSort));
-            sorting.Start();
+            Thread thread = new Thread(new ThreadStart(Start));
+            thread.Start();
         }
 
-        public void StartSort()
+        private void Start()
         {
-            for (int step = MaxStep(); step > 0; step /= 2)
-            {
-                for (int i = step; i < sort.N; i++)
-                {
-                    bool ok = true;
-                    int j = i - step;
-                    while (ok && (j >= 0))
-                    {
-                        sort.DrawSelectedColumn(i);
-                        sort.DrawSelectedColumn(j);
-                        PictureBox.Image = sort.bmp;
-                        Thread.Sleep(delay);
+            sort.StartSort(PictureBox);
+        }
 
-                        ok = (mas[j] > mas[i]);
-                        if (ok)
-                        {
-                            int tmp = mas[j];
-
-                            sort.WipeColumn(i);
-                            sort.WipeColumn(j);
-                            PictureBox.Image = sort.bmp;
-
-                            mas[j] = mas[i];
-                            sort.DrawColumn(j);
-                            PictureBox.Image = sort.bmp;
-
-                            mas[i] = tmp;
-                            sort.DrawColumn(i);
-                            PictureBox.Image = sort.bmp;
-
-                            Thread.Sleep(delay);
-                            j -= step;
-                        }
-                        else
-                        {
-                            sort.DrawColumn(i);
-                            sort.DrawColumn(j);
-                            PictureBox.Image = sort.bmp;
-                        }
-                    }
-                }
-            }
-            this.FormBorderStyle = FormBorderStyle.Sizable;
-            this.Enabled = true;
+        private void newMasToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            sort.GenerateMas();
+            sort.DrawMas();
             PictureBox.Image = sort.bmp;
-        }
-
-        private int MaxStep()
-        {
-            int result = 1;
-            while (result + 1 < sort.N)
-                result *= 2;
-            return result / 2 / 2;
         }
     }
 }
