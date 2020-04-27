@@ -28,6 +28,7 @@ namespace Shell_Sort
         double maxValue = 1000;
         public int N { get; }
         public int[] mas;
+        public bool sortIsFin = false;
 
         public VisualiseSort(PictureBox box, int N = 1000, int delay = 50)
         {
@@ -43,7 +44,7 @@ namespace Shell_Sort
             GenerateMas();
         }
 
-        public void StartSort(PictureBox Box)
+        public void StartSort()
         {
             for (int step = MaxStep(); step > 0; step = NextStep(step))
             {
@@ -54,7 +55,6 @@ namespace Shell_Sort
                     while (ok && (j >= 0))
                     {
                         Comparison(j + step, j);
-                        Box.Image = bmp;
                         Thread.Sleep(delay);
 
                         ok = (mas[j] > mas[j + step]);
@@ -68,7 +68,6 @@ namespace Shell_Sort
                             mas[j + step] = tmp;
 
                             DrawColumns(j, j + step);
-                            Box.Image = bmp;
                             Thread.Sleep(delay);
 
                             j -= step;
@@ -76,12 +75,12 @@ namespace Shell_Sort
                         else
                         {
                             DrawColumns(j + step, j);
-                            Box.Image = bmp;
                             Thread.Sleep(delay);
                         }
                     }
                 }
             }
+            sortIsFin = true;
         }
 
         private int MaxStep()

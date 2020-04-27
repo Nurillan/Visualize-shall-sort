@@ -13,27 +13,47 @@ namespace Shell_Sort
     public partial class MainForm : Form
     {
         VisualiseSort sort;
-        int masN = 150;
-        int delay = 3;
+        int delay = 300;//задержка при рисовании
+        int masN;//кол-во эллементов в массиве
+        Thread thread;
 
         public MainForm()
         {
             InitializeComponent();
+
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
-            sort = new VisualiseSort(PictureBox, PictureBox.Width, delay);
+
+            masN = 20;
+
+            sort = new VisualiseSort(PictureBox, masN, delay);
             sort.DrawMas();
+            thread = new Thread(new ThreadStart(Start));
+            timer1.Tick += new EventHandler(Update);
+            timer1.Interval = delay;
+            timer1.Start();
+        }
+
+        private void Update(Object myObject, EventArgs myEventArgs)
+        {
             PictureBox.Image = sort.bmp;
+            if ((bool)thread?.IsAlive)
+            {
+                startToolStripMenuItem.Enabled = true;
+                newMasToolStripMenuItem.Enabled = true;
+            }
         }
 
         private void startToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Thread thread = new Thread(new ThreadStart(Start));
+            startToolStripMenuItem.Enabled = false;
+            newMasToolStripMenuItem.Enabled = false;
+            thread = new Thread(new ThreadStart(Start));
             thread.Start();
         }
 
         private void Start()
         {
-            sort.StartSort(PictureBox);
+            sort.StartSort();
         }
 
         private void newMasToolStripMenuItem_Click(object sender, EventArgs e)
@@ -41,6 +61,24 @@ namespace Shell_Sort
             sort.GenerateMas();
             sort.DrawMas();
             PictureBox.Image = sort.bmp;
+        }
+
+        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if ((bool)thread?.IsAlive)
+            {
+                thread.Abort();
+            }
+            sort.bmp.Dispose();
+            sort = null;
+        }
+
+        private void stopToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if ((bool)thread?.IsAlive)
+            {
+                thread.Abort();
+            }
         }
     }
 }
